@@ -1,0 +1,8 @@
+= HubPress: github
+
+Use github as a remote backend
+
+== TODO
+
+. Complete this README
+. Add tests
