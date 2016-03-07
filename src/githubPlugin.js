@@ -3,6 +3,7 @@ import fetch from 'isomorphic-fetch';
 import slugify from 'hubpress-core-slugify';
 import Github from 'github-api';
 import Q from 'q';
+import _ from 'lodash';
 
 function getRepositoryInfos(repository) {
   let deferred = Q.defer();
@@ -46,7 +47,15 @@ function getUserInformations(user) {
         deferred.reject(err);
       }
       else {
-        deferred.resolve(informations);
+        deferred.resolve(_.pick(informations, [
+          'login',
+          'id',
+          'name',
+          'location',
+          'blog',
+          'avatar_url',
+          'bio'
+        ]));
       }
     });
 
@@ -363,6 +372,9 @@ function getPosts (data) {
   return getGithubPostsSha(repository, config)
   .then((sha) => {
     return getPostsGithub(repository, config,sha);
+  })
+  .then(posts => {
+    return posts.map(post => _.pick(post, ['name', 'path', 'sha', 'size']))
   })
   .then((posts)=>{
     return markIfPostsPublished(repository, config, posts);
