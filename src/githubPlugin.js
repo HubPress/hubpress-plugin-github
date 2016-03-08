@@ -533,6 +533,8 @@ export function githubPlugin (hubpress) {
       .then(req => req.json())
       .then(config => {
         const mergeConfig = Object.assign({}, config, opts.data.config);
+        // TODO remove after 0.6.0
+        mergeConfig.theme.name = mergeConfig.theme.name.toLowerCase();
         const data = Object.assign({}, opts.data, {config: mergeConfig});
         return Object.assign({}, opts, {data});
       });
