@@ -64,15 +64,15 @@ function getUserInformations(user) {
   }
 }
 
-function getTokenNote() {
+function getTokenNote(repositoryName) {
   //return S(`hubpress-${platform.name}-${platform.os}`).slugify().s;
-  return slugify(`hubpress-${platform.name}-${platform.os}`);
+  return slugify(`${repositoryName}-${platform.name}-${platform.os}`);
 }
 
-function _searchAndDeleteAuthorization(authorizations, authorization ) {
+function _searchAndDeleteAuthorization(repositoryName, authorizations, authorization ) {
   let deferred = Q.defer();
   let id = -1;
-  const TOKEN_NOTE = getTokenNote();
+  const TOKEN_NOTE = getTokenNote(repositoryName);
   authorizations.forEach(function(token) {
     let note = token.note;
     if (note === TOKEN_NOTE) {
@@ -98,13 +98,13 @@ function _searchAndDeleteAuthorization(authorizations, authorization ) {
   return deferred.promise;
 }
 
-function _createAuthorization(authorization) {
+function _createAuthorization(repositoryName, authorization) {
   let deferred = Q.defer();
   let definition = {
     scopes: [
     'public_repo'
     ],
-    note: getTokenNote()
+    note: getTokenNote(repositoryName)
   };
 
 
@@ -152,10 +152,10 @@ function login (opts) {
       return getAuthorizations(authorization);
     })
     .then(function(authorizations) {
-      return _searchAndDeleteAuthorization(authorizations, authorization);
+      return _searchAndDeleteAuthorization(meta.repositoryName, authorizations, authorization);
     })
     .then(function() {
-      return _createAuthorization(authorization);
+      return _createAuthorization(meta.repositoryName, authorization);
     })
     .then(function(result) {
       githubInstance = new Github({
@@ -185,7 +185,7 @@ function login (opts) {
 
       if (otpRequired) {
         // force sms with a post on auth
-        _createAuthorization(authorization);
+        _createAuthorization(meta.repositoryName, authorization);
 
         console.log('Github Plugin - OTP required : ', otpRequired);
         message.type = 'warning';
