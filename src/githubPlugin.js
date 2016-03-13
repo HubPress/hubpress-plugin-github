@@ -300,7 +300,7 @@ function getPostAuthor (config, post, userInformations) {
   console.log('getPostAuthor', post);
   repository.getCommits({
     sha: config.meta.branch,
-    path: post.path
+    path: post.original && post.original.path || post.path
   }, (err, commits) => {
     if (err && err.error !==404) {
       defer.reject(err);
@@ -586,11 +586,11 @@ export function githubPlugin (hubpress) {
     const post = opts.data.post;
     // Move if necessary
     return movePostIfNecessary(config, post)
-    .then(result =>{
-      return getPostAuthor(config, post, opts.state.authentication.credentials.userInformations);
+    .then(result => {
+      return writePost(config, result.post);
     })
-    .then(_post => {
-      return writePost(config, _post);
+    .then(_post =>{
+      return getPostAuthor(config, _post, opts.state.authentication.credentials.userInformations);
     })
     .then(updatedPost => {
       const data = Object.assign({}, opts.data, {post: updatedPost});
