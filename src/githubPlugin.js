@@ -306,8 +306,8 @@ function getPostAuthor (config, post, userInformations) {
       defer.reject(err);
     }
     else {
-      let author = commits[0].author;
-      if (author.login === userInformations) {
+      let author = commits[commits.length - 1].author;
+      if (author.login === userInformations.login) {
         author = Object.assign({}, userInformations);
         const _post = Object.assign({}, post, {author});
         defer.resolve(_post);
