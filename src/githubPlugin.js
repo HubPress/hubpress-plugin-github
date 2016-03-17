@@ -380,7 +380,7 @@ function getPosts (data) {
     return markIfPostsPublished(repository, config, posts);
   })
   .then((posts)=>{
-    return getPostsAuthor(repository, config, posts, data.authentication.credentials.userInformations);
+    return getPostsAuthor(repository, config, posts, data.authentication.userInformations);
   })
   .then((posts)=>{
     return readContent(repository, config, posts);
@@ -590,7 +590,7 @@ export function githubPlugin (hubpress) {
       return writePost(config, result.post);
     })
     .then(_post =>{
-      return getPostAuthor(config, _post, opts.state.authentication.credentials.userInformations);
+      return getPostAuthor(config, _post, opts.state.authentication.userInformations);
     })
     .then(updatedPost => {
       const data = Object.assign({}, opts.data, {post: updatedPost});
