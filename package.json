@@ -15,7 +15,7 @@
   ],
   "dependencies": {
     "github-api": "github:anthonny/github",
-    "hubpress-core-slugify": "github:hubpress/hubpress-core-slugify#0b1b560",
+    "hubpress-core-slugify": "github:hubpress/hubpress-core-slugify#cfe920c",
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.6.1",
     "platform": "^1.3.1",
