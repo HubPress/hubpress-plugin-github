@@ -363,8 +363,8 @@ function readContent(repository, config, posts) {
 
 }
 
-function getPosts (data) {
-  const config = data.config;
+function getPosts (state) {
+  const config = state.application.config;
   console.log('Get posts', config);
   const meta = config.meta;
   const repository = githubInstance.getRepo(meta.username, meta.repositoryName);
@@ -374,17 +374,17 @@ function getPosts (data) {
     return getPostsGithub(repository, config,sha);
   })
   .then(posts => {
-    return posts.map(post => _.pick(post, ['name', 'path', 'sha', 'size']))
+    return posts.map(post => _.pick(post, ['name', 'path', 'sha', 'size']));
   })
   .then((posts)=>{
     return markIfPostsPublished(repository, config, posts);
   })
   .then((posts)=>{
-    return getPostsAuthor(repository, config, posts, data.authentication.userInformations);
+    return getPostsAuthor(repository, config, posts, state.authentication.userInformations);
   })
   .then((posts)=>{
     return readContent(repository, config, posts);
-  })
+  });
 }
 
 function deleteElement (repository, branch, elementPath) {
@@ -566,10 +566,10 @@ export function githubPlugin (hubpress) {
   hubpress.on('requestRemoteSynchronization', (opts) => {
     console.info('Github Plugin - requestRemoteSynchronization');
     console.log('requestRemoteSynchronization', opts);
-    if (!opts.data.authentication.isAuthenticated) {
+    if (!opts.state.authentication.isAuthenticated) {
       return opts;
     }
-    return getPosts(opts.data)
+    return getPosts(opts.state)
       .then(posts => {
         // TODO Check if order is good here
         const mergeDocuments = Object.assign({}, {posts}, opts.data.documents);
