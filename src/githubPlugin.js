@@ -533,9 +533,14 @@ function manageCname (config) {
 
   } else {
     console.info('SettingsService - saveAndPublish save CNAME')
-    repository.writeFile(meta.branch, 'CNAME', meta.cname, `Update CNAME with ${meta.cname}`)
-      .then(defer.resolve)
-      .catch(defer.reject)
+    repository.writeFile(meta.branch, 'CNAME', meta.cname, `Update CNAME with ${meta.cname}`, (err, sha) => {
+      if (err) {
+        defer.reject(err)
+      }
+      else {
+        defer.resolve(sha)
+      }
+    })
   }
 
   return defer.promise
