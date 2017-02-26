@@ -317,8 +317,8 @@ function getPostAuthor (config, post, userInformations) {
         defer.resolve(_post)
       }
       else {
-        const user = githubInstance.getUser()
-        getUserInformations(user)(author.login)
+        const user = githubInstance.getUser(author.login)
+        getUserInformations(user)()
         .then( userInfos => {
           author = Object.assign({}, userInfos)
           const _post = Object.assign({}, post, {author})
