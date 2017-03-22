@@ -5,6 +5,7 @@ import Github from 'github-api'
 import Q from 'q'
 import _ from 'lodash'
 import buildUrlsFromConfig from './urls'
+import InitConfig from './components/InitConfig'
 
 const TREE_CHUNK_SIZE = 50
 
@@ -547,9 +548,9 @@ function manageCname (config) {
 }
 
 
-export function githubPlugin (hubpress) {
+export function githubPlugin (context) {
 
-  hubpress.on('application:request-config', (opts) => {
+  context.on('application:request-config', (opts) => {
     console.info('githubPlugin - application:request-config')
     console.log('githubPlugin - application:request-config', opts)
     return fetch('config.json?dt='+Date.now())
@@ -562,7 +563,7 @@ export function githubPlugin (hubpress) {
       })
   })
 
-  hubpress.on('application:receive-config', function (opts) {
+  context.on('application:receive-config', function (opts) {
     console.info('githubPlugin - application:receive-config')
     console.log('githubPlugin - application:receive-config', opts)
     const urls = buildUrlsFromConfig(opts.nextState.config)
@@ -570,7 +571,7 @@ export function githubPlugin (hubpress) {
     return opts
   });
 
-  hubpress.on('requestAuthentication', (opts) => {
+  context.on('requestAuthentication', (opts) => {
     console.info('githubPlugin - requestAuthentication')
     console.log('githubPlugin - requestAuthentication', opts)
     return login(opts)
@@ -581,7 +582,7 @@ export function githubPlugin (hubpress) {
     })
   })
 
-  hubpress.on('receiveSavedAuth', (opts) => {
+  context.on('receiveSavedAuth', (opts) => {
     console.info('githubPlugin - receiveSavedAuth')
     console.log('githubPlugin - receiveSavedAuth', opts)
     if (opts.nextState.authentication.isAuthenticated) {
@@ -593,7 +594,7 @@ export function githubPlugin (hubpress) {
     return opts
   })
 
-  hubpress.on('hubpress:request-remote-synchronization', (opts) => {
+  context.on('hubpress:request-remote-synchronization', (opts) => {
     console.info('githubPlugin - hubpress:request-remote-synchronization')
     console.log('githubPlugin - hubpress:request-remote-synchronization', opts)
     if (!opts.rootState.authentication.isAuthenticated) {
@@ -607,7 +608,7 @@ export function githubPlugin (hubpress) {
 
   })
 
-  hubpress.on('requestSaveRemotePost', (opts) => {
+  context.on('requestSaveRemotePost', (opts) => {
     console.info('githubPlugin - requestSaveRemotePost')
     console.log('githubPlugin - requestSaveRemotePost', opts)
     const config = opts.rootState.application.config
@@ -626,7 +627,7 @@ export function githubPlugin (hubpress) {
     })
   })
 
-  hubpress.on('requestSaveRemotePublishedElements', (opts) => {
+  context.on('requestSaveRemotePublishedElements', (opts) => {
     console.info('githubPlugin - requestSaveRemotePublishedElements')
     console.log('githubPlugin - requestSaveRemotePublishedElements', opts)
 
@@ -699,7 +700,7 @@ export function githubPlugin (hubpress) {
     return rootPromise.promise
   })
 
-  hubpress.on('requestDeleteRemotePost', (opts) => {
+  context.on('requestDeleteRemotePost', (opts) => {
     console.info('githubPlugin - requestDeleteRemotePost')
     console.log('githubPlugin - requestDeleteRemotePost', opts)
     const defer = Q.defer()
@@ -726,7 +727,7 @@ export function githubPlugin (hubpress) {
     return defer.promise
   })
 
-  hubpress.on('requestDeleteRemotePublishedPost', (opts) => {
+  context.on('requestDeleteRemotePublishedPost', (opts) => {
     console.info('githubPlugin - requestDeleteRemotePublishedPost')
     console.log('githubPlugin - requestDeleteRemotePublishedPost', opts)
     const defer = Q.defer()
@@ -748,7 +749,7 @@ export function githubPlugin (hubpress) {
     return defer.promise
   })
 
-  hubpress.on('application:request-save-config', (opts) => {
+  context.on('application:request-save-config', (opts) => {
     console.info('githubPlugin - application:request-save-config')
     console.log('githubPlugin - application:request-save-config', opts)
 
@@ -761,9 +762,23 @@ export function githubPlugin (hubpress) {
 
   })
 
-  hubpress.on('receiveRenderingPost', opts => {
+  context.on('receiveRenderingPost', opts => {
     console.info('githubPlugin - receiveRenderingPost')
     console.log('githubPlugin - receiveRenderingPost', opts)
     return opts
+  })
+
+  context.on('application:initialize-plugins', opts => {
+    console.info('githubPlugin - application:initialize-plugins')
+    console.log('githubPlugin - application:initialize-plugins', opts)
+
+    // Check if the config.json is ok
+    const requireInitilisation = opts.rootState.application.config.meta.repositoryName === 'put your repository name here'
+      || opts.rootState.application.config.meta.username === 'put your username here'
+
+    opts.nextState.application.requireInitilisation = requireInitilisation
+    opts.nextState.application.config.initialisationConfigComponent = InitConfig
+
+    return opts;
   })
 }
